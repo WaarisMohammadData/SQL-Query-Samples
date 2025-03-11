@@ -1,0 +1,47 @@
+--This sample query was generated using the ENTSOE Spain Energy data acquired here - https://www.kaggle.com/datasets/nicholasjhana/energy-consumption-generation-prices-and-weather/data as a frame of reference
+
+--Set CTE with generation passthrough data since it's horizontally stored and push into vertical format using UNION ALL
+WITH UnpivotedGenerationData AS (
+    SELECT 
+        time,
+        'generation_fossil_hard_coal' AS generation_type,
+        generation_fossil_hard_coal AS generation_value
+    FROM energy_dataset
+    UNION ALL
+    SELECT 
+        time,
+        'generation_fossil_gas' AS generation_type,
+        generation_fossil_gas AS generation_value
+    FROM energy_dataset
+    UNION ALL
+    SELECT 
+        time,
+        'generation_hydro' AS generation_type,
+        generation_hydro AS generation_value
+    FROM energy_dataset
+    UNION ALL
+    SELECT 
+        time,
+        'generation_biomass' AS generation_type,
+        generation_biomass AS generation_value
+    FROM energy_dataset
+)
+SELECT
+--Creates a Year-Month string
+    CONCAT(YEAR(time), '-', LPAD(MONTH(time), 2, '0')) AS Year_Month,
+
+--The SUM function calculates the total generation for each month and year while the CASE statement pivots the data back into a horizontal format to make each generation type a column
+
+    SUM(CASE WHEN generation_type = 'generation_fossil_hard_coal' THEN generation_value ELSE 0 END) AS generation_fossil_hard_coal,
+    SUM(CASE WHEN generation_type = 'generation_fossil_gas' THEN generation_value ELSE 0 END) AS generation_fossil_gas,
+    SUM(CASE WHEN generation_type = 'generation_hydro' THEN generation_value ELSE 0 END) AS generation_hydro
+    SUM(CASE WHEN generation_type = 'generation_biomass' THEN generation_value ELSE 0 END) AS generation_biomass
+
+FROM 
+    UnpivotedData
+WHERE 
+    YEAR(time) BETWEEN 2015 AND 2018
+GROUP BY 
+    YEAR(time), MONTH(time)
+ORDER BY 
+    YEAR(time), MONTH(time);
