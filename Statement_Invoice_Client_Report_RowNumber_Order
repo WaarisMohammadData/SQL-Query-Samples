@@ -1,0 +1,25 @@
+-- Query for electric delivery statement using the CompanyABC_Invoices table
+-- Shows Invoice_ID, the company who the invoice was generated for, invoice date, block order number, user who generated the invoice, most recent statement, etc.
+
+SELECT 
+    Invoice_ID, 
+    I.Client_Name AS Company Name,
+    I.Invoice_Date,
+    I.Block_Order_NUM,
+    I.UserFN + ' ' + I.UserLN AS Invoice Created By, -- Combined first and last name of the invoice creator
+    I.Statement_ID AS 'Most Recent Statement'
+FROM
+CompanyABC_Invoices (nolock) I
+
+-- Selects the most recent statement generated for each invoice. Only those with a statement are included (inner join)
+
+INNER JOIN (SELECT Invoice_ID, UniqueId as Statement_ID, ROW_NUMBER() OVER(PARTITION BY [Invoice_ID] ORDER BY StatementCreatedDt DESC) AS RowNum
+  FROM CompanyABC_Statements) AS S
+  ON I.Invoice_ID = S.Invoice_ID
+
+JOIN CompanyABC_InvoiceDetails (nolock) D 
+ON I.Invoice_ID = D.Invoice_Relate_ID
+WHERE S.RowNum IS NULL OR S.RowNum = 1 AND I.Invoice_Date >= '2025-03-01' AND I.Invoice_Date < '2025-01-01'
+AND D.Billing_Name = 'ClientXYZ'
+ORDER BY I.Invoice_Date DESC
+
