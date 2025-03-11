@@ -25,9 +25,9 @@ WITH CALD AS (
                 (CASE WHEN I.INVOICE_END_DT <= D.END_MONTH THEN D.END_MONTH ELSE I.INVOICE_END_DT END)
             )) AS BILLABLE_DAYS
         FROM 
-            RM_INVOICE(nolock) I
-            LEFT JOIN RM_INVOICE_CUST_CLASS(nolock) C ON I.CUSTOMER_NAME_TX = C.CUSTOMER_NAME
-            JOIN RM_INVOICES_DATES_MONTH(nolock) D ON I.INVOICE_START_DT <= D.END_MONTH AND I.INVOICE_END_DT >= D.START_MONTH
+            ENERGY_INVOICE(nolock) I
+            LEFT JOIN ENERGY_INVOICE_CUST_CLASS(nolock) C ON I.CUSTOMER_NAME_TX = C.CUSTOMER_NAME
+            JOIN ENERGY_INVOICES_DATES_MONTH(nolock) D ON I.INVOICE_START_DT <= D.END_MONTH AND I.INVOICE_END_DT >= D.START_MONTH
         WHERE
             I.INVOICE_START_DT IS NOT NULL
             AND I.OPERATING_CO_TX NOT IN ('BusinessDivision3', 'BusinessDivision2', 'BusinessDivision4', 'BusinessDivision5', 'BusinessDivision6')
@@ -58,9 +58,9 @@ CALA AS (
                 AND C.CUSTOMER_CLASS = 'Residential' THEN 'Residential' 
             END) AS CUSTOMER_CLASS
         FROM 
-            RM_INVOICES(nolock) I
-            LEFT JOIN RM_INVOICE_CUST_CLASS(nolock) C ON I.CUSTOMER_NAME_TX = C.CUSTOMER_NAME
-            JOIN RM_INVOICES_DATES_MONTH(nolock) D ON I.INVOICE_START_DT <= D.END_MONTH AND I.INVOICE_END_DT >= D.START_MONTH
+            ENERGY_INVOICES(nolock) I
+            LEFT JOIN ENERGY_INVOICE_CUST_CLASS(nolock) C ON I.CUSTOMER_NAME_TX = C.CUSTOMER_NAME
+            JOIN ENERGY_INVOICES_DATES_MONTH(nolock) D ON I.INVOICE_START_DT <= D.END_MONTH AND I.INVOICE_END_DT >= D.START_MONTH
         WHERE
             I.INVOICE_START_DT IS NOT NULL
             AND I.OPERATING_CO_TX NOT IN ('BusinessDivision3', 'BusinessDivision2', 'BusinessDivision4', 'BusinessDivision5', 'BusinessDivision6')
